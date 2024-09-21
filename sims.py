@@ -1,113 +1,90 @@
 import random
+
 def bluff_spot():
-    player1_card = 0 #bluff, Q, HERO
-    player2_card = 1 #bluff catcher, K, VILLIAN
-    pot = 2 # 1 ante from each player
-    bluff_size = 1
-    breakeven_bluff_success_freq = bluff_size / (bluff_size + pot) #1/3
-    bluffcatch_freq = 1 - breakeven_bluff_success_freq#0 ev bluff
-    # bluffcatch_freq = 1 - .25 #underfolds
-    # bluffcatch_freq = 1 - .40 #overfolds
+    player1_card = 0  # プレイヤー1のカード（ブラフ：Q）
+    player2_card = 1  # プレイヤー2のカード（ブラフキャッチャー：K）
+    pot = 2  # 各プレイヤーからの1のアンティ
+    bluff_size = 1  # ブラフのサイズ
+    # ブラフが成功する確率のブレイクイーブン（損益分岐点）
+    breakeven_bluff_success_freq = bluff_size / (bluff_size + pot)  # 1/3
+    # ブラフキャッチの確率（損益分岐点での期待値0のブラフ）
+    bluffcatch_freq = 1 - breakeven_bluff_success_freq  # 0 ev bluff
+    # ここで、ブラフキャッチの確率を調整することもできる
+    # bluffcatch_freq = 1 - .25  # アンダーフォールド
+    # bluffcatch_freq = 1 - .40  # オーバーフォールド
+    # 確率に基づいて結果を決定
     if random.random() < bluffcatch_freq:
-        return -bluff_size # player2 calls and wins, player1 loses the bluff
+        return -bluff_size  # プレイヤー2がコールし、プレイヤー1が負ける
     else:
-        return pot # player2 folds and player1 wins the pot
+        return pot  # プレイヤー2がフォールドし、プレイヤー1がポットを獲得
 
 def sim_bluff_spot():
-    total = 0 #we're not including antes! just bluff spot in isolation
-    iterations = 1000
+    total = 0  # アンティは含めない！ブラフの局面だけを独立して考える
+    iterations = 1000  # シミュレーションの回数
     for i in range(iterations):
-        total += bluff_spot()
-        print('{0:0.2f}'.format(total/iterations))
-        # print('{0:0.2f}'.format(total))
-        # total = 0
+        total += bluff_spot()  # ブラフ局面をシミュレーション
+        print('{0:0.2f}'.format(total / iterations))  # 平均値を出力
 
 def bluffcatch_spot():
-    player1_card = 0 #bluff, Q, VILLIAN
-    player2_card = 1 #bluff catcher, K, HERO
-    pot = 2 # 1 ante from each player
-    bet_size = 1
-    bluff_freq = bet_size / (2*bet_size + pot)#.25
-    # in AKQ game, if dealt 3 As and 3 Qs, bluff 1/3 of Q's
-    # ie to find how often to bluff Q, x / (1 + x) = 1/4, x = 1/3
-    # bluff_freq = .3 #overbluffing
-    # bluff_freq = .2 #underbluffing
+    player1_card = 0  # プレイヤー1のカード（ブラフ：Q）
+    player2_card = 1  # プレイヤー2のカード（ブラフキャッチャー：K）
+    pot = 2  # 各プレイヤーからの1のアンティ
+    bet_size = 1  # ベットのサイズ
+    # ブラフの確率
+    bluff_freq = bet_size / (2 * bet_size + pot)  # .25
+    # AKQゲームでは、3枚のAと3枚のQが配られた場合、Qの1/3をブラフ
+    # ブラフの頻度を調整することもできる
+    # bluff_freq = .3  # オーバーブラフ
+    # bluff_freq = .2  # アンダーブラフ
+    # 確率に基づいて結果を決定
     if random.random() < bluff_freq:
-        return pot+bet_size# player2 calls and wins pot + bluff
+        return pot + bet_size  # プレイヤー2がコールし、ポット + ブラフを獲得
     else:
-        return -bet_size # player2 calls and loses
+        return -bet_size  # プレイヤー2がコールし、負ける
 
 def sim_bluffcatch_spot():
-    total = 0 #we're not including antes! just bluff spot in isolation
-    iterations = 1000
+    total = 0  # アンティは含めない！ブラフの局面だけを独立して考える
+    iterations = 1000  # シミュレーションの回数
     for i in range(iterations):
-        total += bluffcatch_spot()
-        print('{0:0.2f}'.format(total/iterations))
-        # print('{0:0.2f}'.format(total))
-        # total = 0
+        total += bluffcatch_spot()  # ブラフキャッチ局面をシミュレーション
+        print('{0:0.2f}'.format(total / iterations))  # 平均値を出力
 
 def polarized_spot():
-    player1_card = 2 if random.random() > 0.5 else 0
-    player2_card = 1 #always a bluffcatcher
-    ante = 1
-    pot = 2*ante 
-    bet_size = 1
+    # プレイヤー1のカードをランダムに決定
+    player1_card = 2 if random.random() > 0.5 else 0  # 値のある手かブラフか
+    player2_card = 1  # プレイヤー2は常にブラフキャッチャー
+    ante = 1  # 各プレイヤーのアンティ
+    pot = 2 * ante  # ポットのサイズ
+    bet_size = 1  # ベットのサイズ
 
-    # equity is 50/50 split if always check down (or always bet/call)
-    # bluff_freq = 0
-    # bluffcatch_freq = 0
-    # or always bet/call, note variance goes up
-    # bluff_freq = 1
-    # bluffcatch_freq = 1
+    # 最良の結果は、常にブラフを行い、相手が常にフォールドすること
+    bluff_freq = 1 / 3  # ブラフの頻度（全体の範囲の25%がブラフであるべき）
+    bluffcatch_freq = 1 - bluff_freq  # ブラフキャッチの頻度
 
-    # best possible outcome is if we always bluff, they always fold
-    # bluff_freq = 1
-    # bluffcatch_freq = 0
-    # # also good for us is if we never bluff, they always bluffcatch
-    # bluff_freq = 0
-    # bluffcatch_freq = 1
-
-    #equilibrium
-    #25% of overall range should be bluffs
-    #half the time we have value
-    bluff_freq = 1/3#3 times we have value, 1 time we bluff
-    bluffcatch_freq = 1-1/3
-
-    # bluff_freq = 1/2 #if one player deviates, other goes pure in other direction
-    # bluffcatch_freq = 1#we bluff too much so villian pure calls
-
-    # bluff_freq = 1/4 #if one player deviates, other goes pure in other direction
-    # bluffcatch_freq = 0#we bluff too little so villian pure folds
-
-    # at equilibrium, changing just one strategy has no affect on EV
-    # bluff_freq = 1/3 #
-    # bluffcatch_freq = 1#can pure fold, pure call, mix, doesn't matter
-
-    if player1_card == 2: #we have value hand
-        if random.random() < bluffcatch_freq: #they call and lose
-            return pot+bet_size-ante
-        else: #they fold, we win their ante
-            return pot-ante
-        # equivalent to EV calculation:
-        # return pot + bet_size*bluffcatch_freq - ante
-    else: #we are bluffing
-        if random.random() < bluff_freq: #we choose to bluff
-            if random.random() < bluffcatch_freq: #they call and we lose bet,ante
-                return -bet_size-ante
-            else: #they fold, we win their ante
-                return pot-ante
-        else: #we give up and always lose
-            return -ante
+    # プレイヤー1が値のある手を持っている場合
+    if player1_card == 2:  # 値のある手
+        if random.random() < bluffcatch_freq:  # 相手がコールして負ける場合
+            return pot + bet_size - ante  # ポット + ベット - アンティを獲得
+        else:  # 相手がフォールドする場合
+            return pot - ante  # ポット - アンティを獲得
+    else:  # ブラフをしている場合
+        if random.random() < bluff_freq:  # ブラフを選択する場合
+            if random.random() < bluffcatch_freq:  # 相手がコールして負ける場合
+                return -bet_size - ante  # ベットとアンティを失う
+            else:  # 相手がフォールドする場合
+                return pot - ante  # ポット - アンティを獲得
+        else:  # 諦めて常に負ける場合
+            return -ante  # アンティを失う
 
 def sim_polarized_spot():
-    total = 0 #we're not including antes! just bluff spot in isolation
-    iterations = 1000
+    total = 0  # アンティは含めない！ブラフの局面だけを独立して考える
+    iterations = 1000  # シミュレーションの回数
     for i in range(iterations):
-        total += polarized_spot()
-        print('{0:.2f}'.format(total/iterations))
-        # print('{0:.2f}'.format(total))
-        # total = 0
+        total += polarized_spot()  # ポラライズされた局面をシミュレーション
+        print('{0:.2f}'.format(total / iterations))  # 平均値を出力
+
 if __name__ == "__main__":
+    # シミュレーションを実行
     # sim_bluff_spot()
     # sim_bluffcatch_spot()
-    sim_polarized_spot()
+    sim_polarized_spot()  # ポラライズされた局面をシミュレーション
